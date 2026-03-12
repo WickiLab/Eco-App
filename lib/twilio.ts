@@ -1,12 +1,15 @@
-export async function sendOtpSms(phone: string, otp: string) {
-  const sid = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_PHONE_NUMBER;
-
-  if (!sid || !token || !from) {
-    console.log(`[MOCK OTP] +94${phone} -> ${otp}`);
-    return { ok: true, mode: 'mock' as const };
+function requireEnv(name: string) {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
   }
+  return value;
+}
+
+export async function sendOtpSms(phone: string, otp: string) {
+  const sid = requireEnv('TWILIO_ACCOUNT_SID');
+  const token = requireEnv('TWILIO_AUTH_TOKEN');
+  const from = requireEnv('TWILIO_PHONE_NUMBER');
 
   const auth = Buffer.from(`${sid}:${token}`).toString('base64');
   const body = new URLSearchParams({
