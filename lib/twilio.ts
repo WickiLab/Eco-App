@@ -18,7 +18,15 @@ export async function sendOtpSms(phone: string, otp: string) {
     throw new Error(
       'Missing Twilio sender configuration. Set TWILIO_PHONE_NUMBER or TWILIO_MESSAGING_SERVICE_SID in .env.local and restart the server.'
     );
+    throw new Error(`Missing required environment variable: ${name}`);
   }
+  return value;
+}
+
+export async function sendOtpSms(phone: string, otp: string) {
+  const sid = requireEnv('TWILIO_ACCOUNT_SID');
+  const token = requireEnv('TWILIO_AUTH_TOKEN');
+  const from = requireEnv('TWILIO_PHONE_NUMBER');
 
   const auth = Buffer.from(`${sid}:${token}`).toString('base64');
   const body = new URLSearchParams({

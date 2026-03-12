@@ -7,6 +7,7 @@ A Next.js application for eco collection workflows, including phone-based OTP au
 - Node.js 20+
 - npm 10+
 - A Twilio account with either an SMS-capable phone number or Messaging Service
+- A Twilio account with an SMS-capable phone number
 
 ## Setup
 
@@ -30,6 +31,10 @@ A Next.js application for eco collection workflows, including phone-based OTP au
 
    > `.env.example` is only a template and is not loaded by Next.js at runtime.
    > Put real values in `.env.local` and restart `npm run dev` after changes.
+
+3. Run the app:
+
+   - `TWILIO_PHONE_NUMBER`
 
 3. Run the app:
 
