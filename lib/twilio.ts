@@ -8,9 +8,7 @@ function requireEnv(name: string) {
   return value;
 }
 
-export async function sendOtpSms(phone: string, otp: string) {
-  const sid = requireEnv('AC2394d5a547201b1fa4aaa9fe10f4e708');
-  const token = requireEnv('4856da5f675cd7bd2bcac31a52e1fe39');
+function getTwilioSender() {
   const from = process.env.TWILIO_PHONE_NUMBER;
   const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
 
@@ -18,7 +16,18 @@ export async function sendOtpSms(phone: string, otp: string) {
     throw new Error(
       'Missing Twilio sender configuration. Set TWILIO_PHONE_NUMBER or TWILIO_MESSAGING_SERVICE_SID in .env.local and restart the server.'
     );
-    throw new Error(`Missing required environment variable: ${name}`);
+  }
+
+  if (from && messagingServiceSid) {
+    throw new Error(
+      'Set only one Twilio sender option. Use TWILIO_PHONE_NUMBER or TWILIO_MESSAGING_SERVICE_SID, not both.'
+    );
+  }
+
+  if (messagingServiceSid && !messagingServiceSid.startsWith('MG')) {
+    throw new Error(
+      'TWILIO_MESSAGING_SERVICE_SID must start with "MG". Do not use your Account SID (starts with "AC").'
+    );
   }
   return value;
 }
@@ -27,6 +36,14 @@ export async function sendOtpSms(phone: string, otp: string) {
   const sid = requireEnv('TWILIO_ACCOUNT_SID');
   const token = requireEnv('TWILIO_AUTH_TOKEN');
   const from = requireEnv('TWILIO_PHONE_NUMBER');
+
+  return { from, messagingServiceSid };
+}
+
+export async function sendOtpSms(phone: string, otp: string) {
+  const sid = requireEnv('TWILIO_ACCOUNT_SID');
+  const token = requireEnv('TWILIO_AUTH_TOKEN');
+  const { from, messagingServiceSid } = getTwilioSender();
 
   const auth = Buffer.from(`${sid}:${token}`).toString('base64');
   const body = new URLSearchParams({
