@@ -9,8 +9,8 @@ function requireEnv(name: string) {
 }
 
 export async function sendOtpSms(phone: string, otp: string) {
-  const sid = requireEnv('TWILIO_ACCOUNT_SID');
-  const token = requireEnv('TWILIO_AUTH_TOKEN');
+  const sid = requireEnv('AC2394d5a547201b1fa4aaa9fe10f4e708');
+  const token = requireEnv('4856da5f675cd7bd2bcac31a52e1fe39');
   const from = process.env.TWILIO_PHONE_NUMBER;
   const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
 
