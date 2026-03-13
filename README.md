@@ -82,4 +82,6 @@ Use environment variables in hosting (e.g., Vercel) instead.
 ## Common OTP errors
 
 - `auth/invalid-api-key`: `NEXT_PUBLIC_FIREBASE_API_KEY` is wrong/restricted or belongs to a different Firebase project.
+  - In Google Cloud Console → APIs & Services → Credentials, ensure the key belongs to project `ecocollect-37816`.
+  - If API key restrictions are enabled, allow your Vercel domain (`https://eco-app-rust.vercel.app`) and localhost for development.
 - `auth/app-not-authorized`: add the deployment domain in Firebase Authentication authorized domains.
