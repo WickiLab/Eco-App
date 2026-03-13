@@ -65,11 +65,21 @@ export default function OTPScreen() {
 
   const resend = async () => {
     setError('');
-    await fetch('/api/auth/send-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
-    });
+
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to resend OTP');
+      }
+    } catch {
+      setError('Failed to resend OTP');
+    }
   };
 
   return (

@@ -1,33 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizeSriLankanPhone } from '@/lib/phone';
+import { verifyOtp } from '@/lib/otp-store';
 
 export async function POST(req: NextRequest) {
   try {
     const { phone, code } = await req.json();
+    const normalized = normalizeSriLankanPhone(phone || '');
 
-    const normalized = normalizeSriLankanPhone(phone);
-    const cookieOtp = req.cookies.get('ec_otp')?.value;
-    const cookiePhone = req.cookies.get('ec_phone_tmp')?.value;
-
-    if (!cookieOtp || !cookiePhone) {
-      return NextResponse.json(
-        { error: 'OTP session expired. Please request a new code.' },
-        { status: 400 }
-      );
+    if (!code || String(code).length !== 6) {
+      return NextResponse.json({ error: 'Please enter a valid 6-digit code.' }, { status: 400 });
     }
 
-    if (cookiePhone !== normalized) {
-      return NextResponse.json(
-        { error: 'Phone number mismatch.' },
-        { status: 400 }
-      );
-    }
-
-    if (code !== cookieOtp) {
-      return NextResponse.json(
-        { error: 'Invalid verification code.' },
-        { status: 401 }
-      );
+    const result = verifyOtp(normalized, String(code));
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
     const response = NextResponse.json({
@@ -51,14 +37,8 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    response.cookies.delete('ec_otp');
-    response.cookies.delete('ec_phone_tmp');
-
     return response;
   } catch {
-    return NextResponse.json(
-      { error: 'Failed to verify OTP' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to verify OTP' }, { status: 500 });
   }
 }

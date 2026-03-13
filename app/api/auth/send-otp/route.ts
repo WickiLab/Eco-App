@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isValidSriLankanPhone, normalizeSriLankanPhone } from '@/lib/phone';
+import { generateOtpCode, saveOtp } from '@/lib/otp-store';
 import { sendOtpSms } from '@/lib/twilio';
-
-function generateOtp() {
-  if (!process.env.TWILIO_ACCOUNT_SID) return '123456';
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
 
 export async function POST(req: NextRequest) {
   try {
     const { phone } = await req.json();
-    const normalized = normalizeSriLankanPhone(phone);
+    const normalized = normalizeSriLankanPhone(phone || '');
 
     if (!isValidSriLankanPhone(normalized)) {
       return NextResponse.json(
@@ -19,35 +15,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const otp = generateOtp();
+    const otp = generateOtpCode();
+    saveOtp(normalized, otp);
     await sendOtpSms(normalized, otp);
 
-    const response = NextResponse.json({
+    return NextResponse.json({
       ok: true,
       message: 'OTP sent successfully',
+      expiresInSeconds: 300,
+      maxUses: 2,
     });
-
-    response.cookies.set('ec_otp', otp, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 5 * 60,
-      path: '/',
-    });
-
-    response.cookies.set('ec_phone_tmp', normalized, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 5 * 60,
-      path: '/',
-    });
-
-    return response;
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to send OTP' },
-      { status: 500 }
-    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to send OTP';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

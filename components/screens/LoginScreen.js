@@ -24,7 +24,6 @@ export default function LoginScreen() {
       });
 
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error || 'Failed to send OTP');
         return;
@@ -74,8 +73,8 @@ export default function LoginScreen() {
           By continuing you agree to our Terms & Privacy Policy
         </p>
 
-        <div className="mt-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-700">
-          Dev note: without Twilio credentials, OTP runs in mock mode with code <strong>123456</strong>.
+        <div className="mt-6 rounded-2xl bg-blue-50 p-4 text-sm text-blue-700">
+          OTP expires in 5 minutes and supports up to 2 successful verifications per code.
         </div>
       </div>
     </div>
