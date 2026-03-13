@@ -55,7 +55,7 @@ npm run start
 - OTP is sent using **Firebase Phone Authentication** from the login screen.
 - Invisible reCAPTCHA is used by Firebase before sending OTP.
 - OTP verification happens on the verify screen; after success the app posts Firebase ID token to `/api/auth/firebase-session`.
-- `/api/auth/firebase-session` validates the token with Google Identity Toolkit and sets app session cookies.
+- `/api/auth/firebase-session` verifies the Firebase ID token signature/claims against Google public certs and then sets app session cookies.
 - Legacy OTP endpoints (`/api/auth/send-otp`, `/api/auth/check-otp`) are deprecated.
 
 ## Vercel deployment checklist
@@ -70,3 +70,9 @@ Set these Environment Variables in Vercel Project Settings:
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 
 Then redeploy.
+
+
+## Notes on Firebase Admin SDK
+
+If you use Firebase Admin SDK locally, do not commit `serviceAccountKey.json`.
+Use environment variables in hosting (e.g., Vercel) instead.

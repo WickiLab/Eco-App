@@ -1,36 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizeSriLankanPhone } from '@/lib/phone';
+import { verifyFirebaseIdToken } from '@/lib/firebase-token';
 
-function getFirebaseApiKey() {
-  return process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyAPU7msqtNr_PisMje0sKV_yeCmLu_7H04';
-}
-
-async function verifyFirebaseIdToken(idToken: string) {
-  const apiKey = getFirebaseApiKey();
-
-  const response = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ idToken }),
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error('Invalid Firebase token.');
-  }
-
-  const data = await response.json();
-  const user = data?.users?.[0];
-
-  if (!user) {
-    throw new Error('Firebase user not found.');
-  }
-
-  return user;
+function getFirebaseProjectId() {
+  return process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'ecocollect-37816';
 }
 
 export async function POST(req: NextRequest) {
@@ -41,8 +14,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing Firebase ID token.' }, { status: 400 });
     }
 
-    const user = await verifyFirebaseIdToken(idToken);
-    const normalizedFromToken = normalizeSriLankanPhone(user.phoneNumber || '');
+    const projectId = getFirebaseProjectId();
+    const claims = await verifyFirebaseIdToken(idToken, projectId);
+
+    const normalizedFromToken = normalizeSriLankanPhone(String(claims.phone_number || ''));
     const normalizedFromClient = normalizeSriLankanPhone(phone || '');
 
     if (!normalizedFromToken) {
