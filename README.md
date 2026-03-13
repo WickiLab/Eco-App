@@ -35,6 +35,7 @@ A Next.js application for eco collection workflows, including phone-based OTP au
    - `.env.example` is only a template and is not loaded at runtime.
    - Restart `npm run dev` after env changes.
    - In Firebase Console, add your Vercel domain to **Authentication → Settings → Authorized domains**.
+   - Ensure your Firebase **Web API key** is active for the same project (`ecocollect-37816`).
    - Enable **Phone** provider in **Authentication → Sign-in method**.
 
 4. Run the app:
@@ -76,3 +77,9 @@ Then redeploy.
 
 If you use Firebase Admin SDK locally, do not commit `serviceAccountKey.json`.
 Use environment variables in hosting (e.g., Vercel) instead.
+
+
+## Common OTP errors
+
+- `auth/invalid-api-key`: `NEXT_PUBLIC_FIREBASE_API_KEY` is wrong/restricted or belongs to a different Firebase project.
+- `auth/app-not-authorized`: add the deployment domain in Firebase Authentication authorized domains.
